@@ -19,7 +19,7 @@
       flake = false;
     };
     tidal-src = {
-      url = "github:tidalcycles/tidal/main";
+      url = "github:tidalcycles/tidal/v1.9.4";
       flake = false;
     };
     vim-tidal-src = {
@@ -47,7 +47,11 @@
 
     mkPackages = pkgs: let
       quarklib = pkgs.callPackage ./quark/lib.nix {};
-      ghcWithTidal = pkgs.haskellPackages.ghcWithPackages (p: [p.tidal]);
+      hsExtend = hpFinal: hpPrev: {
+        hosc = hpPrev.hosc_0_20;
+        tidal = hpPrev.callCabal2nix "tidal" inputs.tidal-src {};
+      };
+      ghcWithTidal = (pkgs.haskellPackages.extend hsExtend).ghcWithPackages (p: [p.tidal]);
     in rec {
       # SuperCollider quarks that are necessary for Tidal.
       dirt-samples = quarklib.mkQuark {
